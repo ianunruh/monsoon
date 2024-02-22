@@ -5,4 +5,5 @@ export const config = {
   oidcClientSecret: process.env.OIDC_CLIENT_SECRET || "",
   oidcAudience: process.env.OIDC_AUDIENCE || "",
   oidcRedirectBase: process.env.OIDC_REDIRECT_BASE || "",
+  kubeURL: process.env.KUBE_URL || "",
 };

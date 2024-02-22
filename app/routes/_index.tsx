@@ -1,22 +1,20 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
 
+import { KubernetesClient } from "~/kubernetes.server";
 import { requireUserSession } from "~/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await requireUserSession(request);
 
-  const kubeBaseURL = "https://kubernetes.den1.kcloud.zone:6443";
+  const client = new KubernetesClient(session.id_token);
 
-  const resp = await fetch(`${kubeBaseURL}/api/v1/namespaces?limit=500`, {
-    headers: {
-      Authorization: `Bearer ${session.id_token}`,
-    },
+  const namespaces = await client.listNamespaces();
+  const machines = await client.listVirtualMachines({
+    namespace: "monsoon-test",
   });
 
-  const body = await resp.json();
-
-  return { session, body };
+  return typedjson({ session, namespaces, machines });
 }
 
 export const meta: MetaFunction = () => {
@@ -27,12 +25,25 @@ export const meta: MetaFunction = () => {
 };
 
 export default function Index() {
-  const { body } = useLoaderData<typeof loader>();
+  const { namespaces, machines } = useTypedLoaderData<typeof loader>();
 
   return (
     <main>
       <h1 className="text-3xl font-bold underline">Hello world!</h1>
-      <pre>{JSON.stringify(body, null, 2)}</pre>
+      <pre>
+        {JSON.stringify(
+          namespaces.items.map((namespace) => namespace.metadata.name),
+          null,
+          2,
+        )}
+      </pre>
+      <pre>
+        {JSON.stringify(
+          machines.items.map((machine) => machine.metadata.name),
+          null,
+          2,
+        )}
+      </pre>
     </main>
   );
 }
