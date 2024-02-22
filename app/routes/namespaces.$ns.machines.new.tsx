@@ -1,15 +1,12 @@
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
-import type {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
-} from "@remix-run/node";
-import { redirect, typedjson, useTypedLoaderData } from "remix-typedjson";
-import { Link, useParams } from "@remix-run/react";
+import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
+import { useContext } from "react";
+import { redirect, typedjson } from "remix-typedjson";
+import { Link } from "@remix-run/react";
 import { z } from "zod";
 import { zx } from "zodix";
 
 import { KubernetesClient } from "~/kubernetes.server";
+import { NamespaceContext } from "~/namespaces";
 import { requireUserSession } from "~/session.server";
 
 const formSchema = z.object({
@@ -185,7 +182,7 @@ ssh_authorized_keys:
 
   const vm = await client.createVirtualMachine(newVM, { namespace: ns });
 
-  return redirect(`/namespaces/${ns}/machines`);
+  return redirect(`/namespaces/${ns}/machines/${name}?refresh=true`);
 }
 
 export const meta: MetaFunction = () => {
@@ -194,7 +191,7 @@ export const meta: MetaFunction = () => {
 };
 
 export default function New() {
-  const { ns } = useParams();
+  const { currentNamespace } = useContext(NamespaceContext);
 
   return (
     <form method="post">
@@ -419,7 +416,7 @@ export default function New() {
 
       <div className="mt-6 flex items-center justify-end gap-x-6">
         <Link
-          to={`/namespaces/${ns}/machines`}
+          to={`/namespaces/${currentNamespace}/machines`}
           type="button"
           className="text-sm font-semibold leading-6 text-gray-900"
         >

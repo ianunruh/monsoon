@@ -1,5 +1,5 @@
 import { Switch } from "@headlessui/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Link, useParams, useSearchParams } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
@@ -8,7 +8,9 @@ import { zx } from "zodix";
 
 import { useRevalidateOnInterval } from "~/hooks";
 import { KubernetesClient } from "~/kubernetes.server";
+import { NamespaceContext } from "~/namespaces";
 import { requireUserSession } from "~/session.server";
+import { classNames } from "~/styles";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const { ns } = zx.parseParams(params, {
@@ -31,10 +33,6 @@ export const meta: MetaFunction = () => {
   return [{ title: "Machines" }];
 };
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
-
 export default function Index() {
   const { machines } = useTypedLoaderData<typeof loader>();
 
@@ -44,7 +42,7 @@ export default function Index() {
     searchParams.get("refresh") === "true",
   );
 
-  const { ns } = useParams();
+  const { currentNamespace } = useContext(NamespaceContext);
 
   useRevalidateOnInterval({
     enabled: autoRefresh,
@@ -86,7 +84,7 @@ export default function Index() {
         </div>
         <div className="mt-4 sm:ml-8 sm:mt-0 sm:flex-none">
           <Link
-            to={`/namespaces/${ns}/machines/new`}
+            to={`/namespaces/${currentNamespace}/machines/new`}
             type="button"
             className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
@@ -132,7 +130,7 @@ export default function Index() {
                     <tr key={machine.metadata.name}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                         <Link
-                          to={`/namespaces/${ns}/machines/${machine.metadata.name}`}
+                          to={`/namespaces/${currentNamespace}/machines/${machine.metadata.name}`}
                         >
                           {machine.metadata.name}
                         </Link>

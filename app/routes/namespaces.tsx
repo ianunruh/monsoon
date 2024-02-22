@@ -7,6 +7,7 @@ import { KubernetesClient } from "~/kubernetes.server";
 import { requireUserSession } from "~/session.server";
 
 import { AppLayout } from "~/components/layout/AppLayout";
+import { NamespaceContext } from "~/namespaces";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await requireUserSession(request);
@@ -32,12 +33,15 @@ export default function Index() {
   const { ns } = useParams();
 
   return (
-    <AppLayout
-      currentNamespace={ns}
-      namespaces={namespaces.items}
-      user={session.user}
+    <NamespaceContext.Provider
+      value={{
+        currentNamespace: ns || "",
+        namespaces: namespaces.items,
+      }}
     >
-      <Outlet />
-    </AppLayout>
+      <AppLayout user={session.user}>
+        <Outlet />
+      </AppLayout>
+    </NamespaceContext.Provider>
   );
 }
