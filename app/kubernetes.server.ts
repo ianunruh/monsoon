@@ -16,13 +16,13 @@ export class KubernetesClient {
   async listNamespaces(
     opts: ListOptions = {},
   ): Promise<KubernetesList<Namespace>> {
-    return this.getJSON("/api/v1/namespaces", opts);
+    return this.listJSON("/api/v1/namespaces", opts);
   }
 
   async listEvents(
     opts: NamespaceListOptions,
   ): Promise<KubernetesList<KubernetesEvent>> {
-    return this.getJSON(`/api/v1/namespaces/${opts.namespace}/events`, opts);
+    return this.listJSON(`/api/v1/namespaces/${opts.namespace}/events`, opts);
   }
 
   async createVirtualMachine(
@@ -36,18 +36,28 @@ export class KubernetesClient {
     );
   }
 
+  async getVirtualMachine(opts: NamespaceGetOptions): Promise<VirtualMachine> {
+    return this.getJSON(
+      `/apis/kubevirt.io/v1/namespaces/${opts.namespace}/virtualmachines/${opts.name}`,
+    );
+  }
+
   async listVirtualMachines(
     opts: NamespaceListOptions,
   ): Promise<KubernetesList<VirtualMachine>> {
-    return this.getJSON(
+    return this.listJSON(
       `/apis/kubevirt.io/v1/namespaces/${opts.namespace}/virtualmachines`,
       opts,
     );
   }
 
-  async getJSON<T>(path: string, opts: ListOptions): Promise<T> {
+  async listJSON<T>(path: string, opts: ListOptions): Promise<T> {
     const params = buildSearchParams(opts);
-    const resp = await fetch(`${config.kubeURL}${path}?${params.toString()}`, {
+    return this.getJSON(path, params.toString());
+  }
+
+  async getJSON<T>(path: string, params?: string): Promise<T> {
+    const resp = await fetch(`${config.kubeURL}${path}?${params}`, {
       headers: {
         Authorization: `Bearer ${this.token}`,
       },
@@ -109,3 +119,9 @@ export interface ListOptions {
 export interface NamespaceCreateOptions extends CreateOptions, Namespaced {}
 
 export interface CreateOptions {}
+
+export interface NamespaceGetOptions extends GetOptions, Namespaced {}
+
+export interface GetOptions {
+  name: string;
+}

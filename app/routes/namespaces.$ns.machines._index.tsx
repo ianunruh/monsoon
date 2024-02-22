@@ -1,3 +1,4 @@
+import { Switch } from "@headlessui/react";
 import { useState } from "react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Link, useParams, useSearchParams } from "@remix-run/react";
@@ -8,7 +9,6 @@ import { zx } from "zodix";
 import { useRevalidateOnInterval } from "~/hooks";
 import { KubernetesClient } from "~/kubernetes.server";
 import { requireUserSession } from "~/session.server";
-import { Switch } from "@headlessui/react";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const { ns } = zx.parseParams(params, {
@@ -131,7 +131,11 @@ export default function Index() {
                   {machines.items.map((machine) => (
                     <tr key={machine.metadata.name}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {machine.metadata.name}
+                        <Link
+                          to={`/namespaces/${ns}/machines/${machine.metadata.name}`}
+                        >
+                          {machine.metadata.name}
+                        </Link>
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                         {
