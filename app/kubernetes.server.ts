@@ -1,5 +1,6 @@
 import { config } from "./config.server";
 import type {
+  KubernetesEvent,
   KubernetesList,
   Namespace,
   VirtualMachine,
@@ -16,6 +17,12 @@ export class KubernetesClient {
     opts: ListOptions = {},
   ): Promise<KubernetesList<Namespace>> {
     return this.getJSON("/api/v1/namespaces", opts);
+  }
+
+  async listEvents(
+    opts: NamespaceListOptions,
+  ): Promise<KubernetesList<KubernetesEvent>> {
+    return this.getJSON(`/api/v1/namespaces/${opts.namespace}/events`, opts);
   }
 
   async listVirtualMachines(

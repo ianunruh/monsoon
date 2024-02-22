@@ -3,6 +3,7 @@ import { Issuer, generators } from "openid-client";
 import type { Client } from "openid-client";
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 
+import { User } from "./auth";
 import { config } from "./config.server";
 
 export async function requireUserSession(request: Request) {
@@ -31,7 +32,7 @@ export async function requireUserSession(request: Request) {
   }
 
   return {
-    user: session.get("user"),
+    user: session.get("user") as User,
     id_token: session.get("id_token"),
   };
 }

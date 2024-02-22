@@ -6,4 +6,6 @@ export const config = {
   oidcAudience: process.env.OIDC_AUDIENCE || "",
   oidcRedirectBase: process.env.OIDC_REDIRECT_BASE || "",
   kubeURL: process.env.KUBE_URL || "",
+  kubeNamespaceLabelSelector:
+    process.env.KUBE_NS_LABEL_SELECTOR || "monsoon.ianunruh.com/enabled=true",
 };
