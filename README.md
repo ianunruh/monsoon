@@ -19,3 +19,9 @@ Start the Remix development asset server and the Express server by running:
 ```sh
 npm run dev
 ```
+
+If your Kubernetes cluster does not have TLS certificates from a public CA, run this instead:
+
+```sh
+NODE_TLS_REJECT_UNAUTHORIZED=0 npm run dev
+```
