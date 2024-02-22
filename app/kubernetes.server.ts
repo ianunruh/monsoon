@@ -25,6 +25,17 @@ export class KubernetesClient {
     return this.getJSON(`/api/v1/namespaces/${opts.namespace}/events`, opts);
   }
 
+  async createVirtualMachine(
+    vm: VirtualMachine,
+    opts: NamespaceCreateOptions,
+  ): Promise<VirtualMachine> {
+    return this.createJSON(
+      `/apis/kubevirt.io/v1/namespaces/${opts.namespace}/virtualmachines`,
+      vm,
+      opts,
+    );
+  }
+
   async listVirtualMachines(
     opts: NamespaceListOptions,
   ): Promise<KubernetesList<VirtualMachine>> {
@@ -41,6 +52,29 @@ export class KubernetesClient {
         Authorization: `Bearer ${this.token}`,
       },
     });
+    if (resp.status < 200 || resp.status >= 300) {
+      throw resp;
+    }
+    return resp.json();
+  }
+
+  async createJSON<T>(
+    path: string,
+    item: any,
+    opts: CreateOptions,
+  ): Promise<T> {
+    const body = JSON.stringify(item, null, 2);
+    const resp = await fetch(`${config.kubeURL}${path}`, {
+      method: "POST",
+      body,
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        ["Content-Type"]: "application/json",
+      },
+    });
+    if (resp.status < 200 || resp.status >= 300) {
+      throw resp;
+    }
     return resp.json();
   }
 }
@@ -61,11 +95,17 @@ function buildSearchParams({
   return params;
 }
 
-export interface NamespaceListOptions extends ListOptions {
+export interface Namespaced {
   namespace: string;
 }
+
+export interface NamespaceListOptions extends ListOptions, Namespaced {}
 
 export interface ListOptions {
   limit?: number;
   labelSelector?: string;
 }
+
+export interface NamespaceCreateOptions extends CreateOptions, Namespaced {}
+
+export interface CreateOptions {}
