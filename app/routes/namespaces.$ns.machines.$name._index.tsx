@@ -50,7 +50,9 @@ export default function Index() {
 
   return (
     <main>
-      <pre>{JSON.stringify(machine.status, null, 2)}</pre>
+      <code className="block text-sm font-mono whitespace-pre overflow-x-scroll">
+        {JSON.stringify(machine.status, null, 2)}
+      </code>
     </main>
   );
 }
