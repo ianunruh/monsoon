@@ -122,10 +122,19 @@ export function AppLayout({ children, user }: AppLayoutProps) {
 }
 
 function Sidebar() {
+  const { kubeURL } = useContext(NamespaceContext);
+
+  const kubeParsedURL = new URL(kubeURL);
+
   return (
     <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-indigo-600 px-6 pb-4">
       <div className="flex h-16 shrink-0 items-center">
-        <span className="text-white">Monsoon</span>
+        <div>
+          <p className="text-white">Monsoon</p>
+          <p className="text-xs text-gray-400" title={kubeURL}>
+            {kubeParsedURL.hostname}
+          </p>
+        </div>
       </div>
       <nav className="flex flex-1 flex-col">
         <ul role="list" className="flex flex-1 flex-col gap-y-7">

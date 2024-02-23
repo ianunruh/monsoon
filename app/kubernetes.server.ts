@@ -3,7 +3,9 @@ import type {
   KubernetesEvent,
   KubernetesList,
   Namespace,
+  PersistentVolumeClaim,
   VirtualMachine,
+  VirtualMachineClusterInstancetype,
 } from "./kubernetes-types";
 
 export class KubernetesClient {
@@ -23,6 +25,15 @@ export class KubernetesClient {
     opts: NamespaceListOptions,
   ): Promise<KubernetesList<KubernetesEvent>> {
     return this.listJSON(`/api/v1/namespaces/${opts.namespace}/events`, opts);
+  }
+
+  async listPersistentVolumeClaims(
+    opts: NamespaceListOptions,
+  ): Promise<KubernetesList<PersistentVolumeClaim>> {
+    return this.listJSON(
+      `/api/v1/namespaces/${opts.namespace}/persistentvolumeclaims`,
+      opts,
+    );
   }
 
   async createVirtualMachine(
@@ -47,6 +58,15 @@ export class KubernetesClient {
   ): Promise<KubernetesList<VirtualMachine>> {
     return this.listJSON(
       `/apis/kubevirt.io/v1/namespaces/${opts.namespace}/virtualmachines`,
+      opts,
+    );
+  }
+
+  async listVirtualMachineClusterInstancetypes(
+    opts: ListOptions = {},
+  ): Promise<KubernetesList<VirtualMachineClusterInstancetype>> {
+    return this.listJSON(
+      "/apis/instancetype.kubevirt.io/v1beta1/virtualmachineclusterinstancetypes",
       opts,
     );
   }

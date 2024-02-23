@@ -24,11 +24,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect(`/namespaces/${namespace.metadata.name}/machines`);
   }
 
-  return typedjson({ session, namespaces });
+  const { kubeURL } = config;
+
+  return typedjson({ session, namespaces, kubeURL });
 }
 
 export default function Index() {
-  const { session, namespaces } = useTypedLoaderData<typeof loader>();
+  const { session, namespaces, kubeURL } = useTypedLoaderData<typeof loader>();
 
   const { ns } = useParams();
 
@@ -37,6 +39,7 @@ export default function Index() {
       value={{
         currentNamespace: ns || "",
         namespaces: namespaces.items,
+        kubeURL,
       }}
     >
       <AppLayout user={session.user}>

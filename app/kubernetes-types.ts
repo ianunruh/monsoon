@@ -3,18 +3,23 @@ export interface KubernetesList<T extends KubernetesObject> {
 }
 
 export interface KubernetesObject {
+  apiVersion: string;
+  kind: string;
   metadata: {
     name: string;
     labels?: Record<string, string>;
     annotations?: Record<string, string>;
     creationTimestamp?: string;
   };
+  spec: any;
 }
 
 export interface Namespace extends KubernetesObject {}
 
+export interface PersistentVolumeClaim extends KubernetesObject {}
+
 export interface VirtualMachine extends KubernetesObject {
-  status: {
+  status?: {
     printableStatus: string;
   };
 }
@@ -29,3 +34,5 @@ export interface KubernetesEvent extends KubernetesObject {
     name: string;
   };
 }
+
+export interface VirtualMachineClusterInstancetype extends KubernetesObject {}
