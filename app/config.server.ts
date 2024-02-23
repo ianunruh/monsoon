@@ -8,4 +8,6 @@ export const config = {
   kubeURL: process.env.KUBE_URL || "",
   kubeNamespaceLabelSelector:
     process.env.KUBE_NS_LABEL_SELECTOR || "monsoon.ianunruh.com/enabled=true",
+  netboxURL: process.env.NETBOX_URL || "",
+  netboxToken: process.env.NETBOX_TOKEN || "",
 };

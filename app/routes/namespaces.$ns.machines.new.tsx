@@ -12,14 +12,13 @@ import { buildMachine } from "~/machines";
 import { NamespaceContext } from "~/namespaces";
 import { requireUserSession } from "~/session.server";
 import { PersistentVolumeClaim } from "~/kubernetes-types";
+import { findPrefix, reserveIPAddress } from "~/netbox.server";
 
 const formSchema = z.object({
   name: z.string(),
   sourcePVCName: z.string(),
   rootDiskSize: z.coerce.number(),
   size: z.string(),
-  ipv4Address: z.string(),
-  ipv4Gateway: z.string(),
   sshKey: z.string(),
 });
 
@@ -50,13 +49,26 @@ export async function action({ request, params }: ActionFunctionArgs) {
     ns: z.string(),
   });
 
-  const values = await zx.parseForm(request, formSchema);
+  const { name, ...values } = await zx.parseForm(request, formSchema);
 
   const session = await requireUserSession(request);
 
   const client = new KubernetesClient(session.id_token);
 
-  const newVM = buildMachine(values);
+  const prefix = await findPrefix();
+  const ipv4Gateway = prefix.custom_fields.gateway;
+  if (!ipv4Gateway || !ipv4Gateway.address) {
+    throw new Error("prefix missing IPv4 gateway address");
+  }
+
+  const ipv4Address = await reserveIPAddress(prefix.id, `${ns}/${name}`);
+
+  const newVM = buildMachine({
+    ...values,
+    name,
+    ipv4Address,
+    ipv4Gateway: ipv4Gateway.address,
+  });
 
   const vm = await client.createVirtualMachine(newVM, { namespace: ns });
 
@@ -203,46 +215,6 @@ export default function New() {
           </div>
 
           <div className="grid max-w-2xl grid-cols-1 gap-x-3 gap-y-4 sm:grid-cols-6 md:col-span-2">
-            <div className="sm:col-span-4">
-              <label
-                htmlFor="ipv4Address"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                IPv4 Address
-              </label>
-              <div className="mt-2">
-                <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-                  <input
-                    type="text"
-                    name="ipv4Address"
-                    id="ipv4Address"
-                    className="block flex-1 border-0 bg-transparent py-1.5 pl-1.5 font-mono text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                    placeholder="74.82.62.2/27"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="sm:col-span-4">
-              <label
-                htmlFor="ipv4Gateway"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                IPv4 Gateway
-              </label>
-              <div className="mt-2">
-                <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-                  <input
-                    type="text"
-                    name="ipv4Gateway"
-                    id="ipv4Gateway"
-                    className="block flex-1 border-0 bg-transparent py-1.5 pl-1.5 font-mono text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                    placeholder="74.82.62.1"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
             <div className="sm:col-span-4">
               <label
                 htmlFor="sshKey"
