@@ -1,0 +1,10 @@
+version: "3.1"
+services:
+  web:
+    build: .
+    environment:
+      NODE_TLS_REJECT_UNAUTHORIZED: "0"
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
