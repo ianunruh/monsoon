@@ -67,7 +67,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     ...values,
     name,
     ipv4Address,
-    ipv4Gateway: ipv4Gateway.address,
+    ipv4Gateway: ipv4Gateway.address.split("/")[0],
   });
 
   const vm = await client.createVirtualMachine(newVM, { namespace: ns });
