@@ -1,6 +1,6 @@
 import sortBy from "lodash/sortBy.js";
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { redirect, typedjson, useTypedLoaderData } from "remix-typedjson";
 import { promiseHash } from "remix-utils/promise";
 import { Link } from "@remix-run/react";
@@ -82,6 +82,10 @@ export const meta: MetaFunction = () => {
   return [{ title: "New Machine" }];
 };
 
+function sanitizeName(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9-]/, "-");
+}
+
 export default function New() {
   const { images, sizes } = useTypedLoaderData<typeof loader>();
 
@@ -94,6 +98,8 @@ export default function New() {
         metadata.labels["instancetype.kubevirt.io/memory"].replace("Gi", ""),
       ),
   ]);
+
+  const [name, setName] = useState("");
 
   return (
     <form method="post">
@@ -125,6 +131,8 @@ export default function New() {
                     className="block w-full border-0 bg-transparent py-1.5 pl-1.5 font-mono text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
                     placeholder="minecraft"
                     required
+                    value={name}
+                    onChange={event => setName(sanitizeName(event.currentTarget.value))}
                   />
                 </div>
               </div>
@@ -174,11 +182,13 @@ export default function New() {
               <div className="mt-2">
                 <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
                   <input
-                    type="text"
+                    type="number"
                     name="rootDiskSize"
                     id="rootDiskSize"
                     className="block flex-1 border-0 bg-transparent py-1.5 pl-1.5 font-mono text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
                     defaultValue="100"
+                    min="100"
+                    max="1000"
                     required
                   />
                 </div>
