@@ -111,6 +111,8 @@ const sessionStorage = createCookieSessionStorage({
     sameSite: "lax",
     path: "/",
     httpOnly: true,
+    // maxAge should match the expiration of the token from OIDC
+    maxAge: 85800,
     secrets: [config.sessionSecret],
     secure: process.env.NODE_ENV === "production",
   },
