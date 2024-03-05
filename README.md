@@ -6,6 +6,9 @@ Experimental virtual machine hosting platform based on Remix.js and Kubernetes/K
 - Uses Multus for VM networking.
 - Uses Kubernetes for application data, no other database needed.
 
+![List VM view](docs/list-vm.png)
+![Create VM view](docs/create-vm.png)
+
 ## Development
 
 Setup the app environment variables based on your own Kubernetes cluster and OIDC provider.
